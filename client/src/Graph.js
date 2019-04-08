@@ -183,7 +183,7 @@ function Graph(props) {
 
   const candlestickYMin = 100
   const candlestickYMax = 1100
-  const candlestickYTickInterval = 100
+  const candlestickYTickInterval = 200
 
   const volumeYMax = 100
   const volumeYTickInterval = 50
@@ -235,6 +235,22 @@ function Graph(props) {
         },
       ]}
       graphs={[
+        {
+          type: "xLines",
+          ...candlestickGraph,
+          xMin,
+          xMax,
+          xInterval: xTickInterval,
+          lineColor: "lightgrey",
+        },
+        {
+          type: "yLines",
+          ...candlestickGraph,
+          yMin: candlestickYMin,
+          yMax: candlestickYMax,
+          yInterval: candlestickYTickInterval,
+          lineColor: "lightgrey",
+        },
         {
           type: "candlestick",
           ...candlestickGraph,
