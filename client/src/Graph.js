@@ -204,11 +204,32 @@ function renderVolumeYLabel(y) {
   return y.toLocaleString()
 }
 
+function renderFrameTimestamp(timestamp) {
+  if (timestamp) {
+    return moment(timestamp * 1000).format("YYYY - MM - DD HH:mm:ss")
+  }
+  return ""
+}
+
+function renderFramePrice(price) {
+  if (price !== undefined) {
+    return price.toFixed(2).toLocaleString()
+  }
+  return ""
+}
+
 function Graph(props) {
   const [state, setState] = useState({
     mouse: {
       x: undefined,
       y: undefined,
+    },
+    nearest: {
+      timetamp: undefined,
+      open: undefined,
+      close: undefined,
+      high: undefined,
+      low: undefined,
     },
   })
 
@@ -220,36 +241,6 @@ function Graph(props) {
   const candlestickYAxis = getCandlestickYAxis(props)
   const candlestickGraph = getCandlestickGraph(props)
   const graph = getGraph(props)
-
-  function onMouseMove(e, mouse) {
-    if (!canvas.math.isInsideRect(graph, mouse)) {
-      setState({
-        ...state,
-        mouse: {
-          x: undefined,
-          y: undefined,
-        },
-      })
-    } else {
-      setState({
-        ...state,
-        mouse: {
-          x: mouse.x,
-          y: mouse.y,
-        },
-      })
-    }
-  }
-
-  function onMouseOut() {
-    setState({
-      ...state,
-      mouse: {
-        x: undefined,
-        y: undefined,
-      },
-    })
-  }
 
   const xMin = 0
   const xMax = 100
@@ -271,9 +262,67 @@ function Graph(props) {
     candlestickYMax,
     volumeYMax
   )
+  const timestamps = data.map(d => d.timestamp)
   const latest = data[data.length - 1]
 
-  const { mouse } = state
+  function onMouseMove(e, mouse) {
+    if (!canvas.math.isInsideRect(graph, mouse)) {
+      setState({
+        ...state,
+        mouse: {
+          x: undefined,
+          y: undefined,
+        },
+      })
+    } else {
+      const x = canvas.math.getX(xAxis.width, xAxis.left, xMax, xMin, mouse.x)
+      const i = canvas.math.findNearestIndex(timestamps, x)
+
+      let nearest = {
+        timetamp: undefined,
+        open: undefined,
+        close: undefined,
+        high: undefined,
+        low: undefined,
+      }
+
+      if (data[i]) {
+        nearest.timestamp = data[i].timestamp
+        nearest.open = data[i].open
+        nearest.close = data[i].close
+        nearest.high = data[i].high
+        nearest.low = data[i].low
+      }
+
+      setState({
+        ...state,
+        mouse: {
+          x: mouse.x,
+          y: mouse.y,
+        },
+        nearest,
+      })
+    }
+  }
+
+  function onMouseOut() {
+    setState({
+      ...state,
+      mouse: {
+        x: undefined,
+        y: undefined,
+      },
+      nearest: {
+        timetamp: undefined,
+        open: undefined,
+        close: undefined,
+        high: undefined,
+        low: undefined,
+      },
+    })
+  }
+
+  const { mouse, nearest } = state
 
   return (
     <Graphs
@@ -443,6 +492,64 @@ function Graph(props) {
           drawLine: shouldDrawYLabel(mouse, candlestickGraph, volumeGraph),
           lineLeft: graph.left,
           lineRight: graph.left + graph.width + 10,
+        },
+      ]}
+      frames={[
+        {
+          text: renderFrameTimestamp(nearest.timestamp),
+          color: "white",
+          top: candlestickGraph.top + 10,
+          left: candlestickGraph.left + 10,
+        },
+        {
+          text: "O",
+          color: "grey",
+          top: candlestickGraph.top + 30,
+          left: candlestickGraph.left + 10,
+        },
+        {
+          text: renderFramePrice(nearest.open),
+          color: "white",
+          top: candlestickGraph.top + 30,
+          left: candlestickGraph.left + 30,
+        },
+        {
+          text: "H",
+          color: "grey",
+          top: candlestickGraph.top + 30,
+          left: candlestickGraph.left + 100,
+        },
+        {
+          text: "123.2345",
+          text: renderFramePrice(nearest.high),
+          color: "white",
+          top: candlestickGraph.top + 30,
+          left: candlestickGraph.left + 120,
+        },
+        {
+          text: "L",
+          color: "grey",
+          top: candlestickGraph.top + 30,
+          left: candlestickGraph.left + 200,
+        },
+        {
+          text: "123.2345",
+          text: renderFramePrice(nearest.low),
+          color: "white",
+          top: candlestickGraph.top + 30,
+          left: candlestickGraph.left + 220,
+        },
+        {
+          text: "C",
+          color: "grey",
+          top: candlestickGraph.top + 30,
+          left: candlestickGraph.left + 300,
+        },
+        {
+          text: renderFramePrice(nearest.close),
+          color: "white",
+          top: candlestickGraph.top + 30,
+          left: candlestickGraph.left + 320,
         },
       ]}
       onMouseMove={onMouseMove}
