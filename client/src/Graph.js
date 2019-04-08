@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import PropTypes from "prop-types"
 import { Graphs, canvas } from "react-canvas-time-series"
+import moment from "moment"
 
 function rand(min, max) {
   return Math.random() * (max - min) + min
@@ -45,12 +46,16 @@ function getRandomCandlestickData(xStep, xMin, xMax, yMin, yMax, volumeYMax) {
   return data
 }
 
+const BACKGROUND_COLOR = "#282c34"
 const PADDING = 30
 const X_AXIS_HEIGHT = 20
 const Y_AXIS_WIDTH = 70
 const VOLUME_GRAPH_HEIGHT = 100
 // padding between candlestick and volume graph
 const GRAPH_PADDING = 20
+
+const X_LABEL_WIDTH = 80
+const Y_LABEL_HEIGHT = 20
 
 // size
 function getXAxis({ width, height }) {
@@ -122,6 +127,67 @@ function renderXTick(x) {
   return x
 }
 
+function renderXLabel(x) {
+  return moment(x * 1000).format("MM-DD HH:mm")
+}
+
+function shouldDrawYLabel(mouse, candlestickGraph, volumeGraph) {
+  if (!mouse.y) {
+    return false
+  }
+
+  if (
+    mouse.y >= candlestickGraph.top &&
+    mouse.y <= candlestickGraph.top + candlestickGraph.height
+  ) {
+    return true
+  }
+
+  if (
+    mouse.y >= volumeGraph.top &&
+    mouse.y <= volumeGraph.top + volumeGraph.width
+  ) {
+    return true
+  }
+
+  return false
+}
+
+function renderYLabel(
+  mouse,
+  candlestickGraph,
+  candlestickYMin,
+  candlestickYMax,
+  volumeGraph,
+  volumeYMin,
+  volumeYMax
+) {
+  if (mouse.y <= candlestickGraph.top + candlestickGraph.height) {
+    return renderCandlestickYTick(
+      canvas.math.getY(
+        candlestickGraph.height,
+        candlestickGraph.top,
+        candlestickYMax,
+        candlestickYMin,
+        mouse.y
+      )
+    )
+  } else if (
+    mouse.y >= volumeGraph.top &&
+    mouse.y <= volumeGraph.top + volumeGraph.height
+  ) {
+    return renderCandlestickYTick(
+      canvas.math.getY(
+        volumeGraph.height,
+        volumeGraph.top,
+        volumeYMax,
+        volumeYMin,
+        mouse.y
+      )
+    )
+  }
+}
+
 function renderCandlestickYTick(y) {
   return y.toFixed(2).toLocaleString()
 }
@@ -186,6 +252,7 @@ function Graph(props) {
   const candlestickYTickInterval = 200
 
   const volumeYMax = 100
+  const volumeYMin = 0
   const volumeYTickInterval = 50
 
   const data = getRandomCandlestickData(
@@ -197,16 +264,18 @@ function Graph(props) {
     volumeYMax
   )
 
+  const { mouse } = state
+
   return (
     <Graphs
       width={width}
       height={height}
-      backgroundColor="#282c34"
+      backgroundColor={BACKGROUND_COLOR}
       axes={[
         {
           at: "right",
           ...candlestickYAxis,
-          lineColor: "white",
+          lineColor: "grey",
           yMin: candlestickYMin,
           yMax: candlestickYMax,
           textColor: "white",
@@ -216,8 +285,8 @@ function Graph(props) {
         {
           at: "right",
           ...volumeYAxis,
-          lineColor: "white",
-          yMin: 0,
+          lineColor: "grey",
+          yMin: volumeYMin,
           yMax: volumeYMax,
           textColor: "white",
           tickInterval: volumeYTickInterval,
@@ -226,7 +295,7 @@ function Graph(props) {
         {
           at: "bottom",
           ...xAxis,
-          lineColor: "white",
+          lineColor: "grey",
           xMin,
           xMax,
           tickInterval: xTickInterval,
@@ -241,7 +310,7 @@ function Graph(props) {
           xMin,
           xMax,
           xInterval: xTickInterval,
-          lineColor: "lightgrey",
+          lineColor: "grey",
         },
         {
           type: "yLines",
@@ -249,7 +318,7 @@ function Graph(props) {
           yMin: candlestickYMin,
           yMax: candlestickYMax,
           yInterval: candlestickYTickInterval,
-          lineColor: "lightgrey",
+          lineColor: "grey",
         },
         {
           type: "candlestick",
@@ -268,7 +337,7 @@ function Graph(props) {
           ...volumeGraph,
           xMin,
           xMax,
-          yMin: 0,
+          yMin: volumeYMin,
           yMax: volumeYMax,
           barWidth: 10,
           getBarColor: d => (d.close > d.open ? "green" : "red"),
@@ -278,6 +347,49 @@ function Graph(props) {
             open: d.open,
             close: d.close,
           })),
+        },
+      ]}
+      xLabels={[
+        {
+          drawLabel: !!mouse.x,
+          top: xAxis.top + 10,
+          left: mouse.x - X_LABEL_WIDTH / 2,
+          width: X_LABEL_WIDTH,
+          renderText: () =>
+            renderXLabel(
+              canvas.math.getX(graph.width, graph.left, xMax, xMin, mouse.x)
+            ),
+          color: "white",
+          backgroundColor: "black",
+          lineColor: "white",
+          drawLine: !!mouse.x,
+          lineTop: graph.top,
+          lineBottom: xAxis.top + 10,
+        },
+      ]}
+      yLabels={[
+        {
+          drawLabel: shouldDrawYLabel(mouse, candlestickGraph, volumeGraph),
+          top: mouse.y - Y_LABEL_HEIGHT / 2,
+          left: graph.left + graph.width + 10,
+          height: Y_LABEL_HEIGHT,
+          width: Y_AXIS_WIDTH,
+          renderText: () =>
+            renderYLabel(
+              mouse,
+              candlestickGraph,
+              candlestickYMin,
+              candlestickYMax,
+              volumeGraph,
+              volumeYMin,
+              volumeYMax
+            ),
+          color: "white",
+          backgroundColor: "black",
+          lineColor: "white",
+          drawLine: shouldDrawYLabel(mouse, candlestickGraph, volumeGraph),
+          lineLeft: graph.left,
+          lineRight: graph.left + graph.width + 10,
         },
       ]}
       onMouseMove={onMouseMove}
