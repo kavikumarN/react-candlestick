@@ -153,7 +153,7 @@ function shouldDrawYLabel(mouse, candlestickGraph, volumeGraph) {
   return false
 }
 
-function renderYLabel(
+function renderYLabelAtMouse(
   mouse,
   candlestickGraph,
   candlestickYMin,
@@ -192,7 +192,15 @@ function renderCandlestickYTick(y) {
   return y.toFixed(2).toLocaleString()
 }
 
+function renderCandlestickYLabel(y) {
+  return y.toFixed(2).toLocaleString()
+}
+
 function renderVolumeYTick(y) {
+  return y.toLocaleString()
+}
+
+function renderVolumeYLabel(y) {
   return y.toLocaleString()
 }
 
@@ -263,6 +271,7 @@ function Graph(props) {
     candlestickYMax,
     volumeYMax
   )
+  const latest = data[data.length - 1]
 
   const { mouse } = state
 
@@ -278,7 +287,7 @@ function Graph(props) {
           lineColor: "grey",
           yMin: candlestickYMin,
           yMax: candlestickYMax,
-          textColor: "white",
+          textColor: "lightgrey",
           tickInterval: candlestickYTickInterval,
           renderTick: renderCandlestickYTick,
         },
@@ -288,7 +297,7 @@ function Graph(props) {
           lineColor: "grey",
           yMin: volumeYMin,
           yMax: volumeYMax,
-          textColor: "white",
+          textColor: "lightgrey",
           tickInterval: volumeYTickInterval,
           renderTick: renderVolumeYTick,
         },
@@ -299,7 +308,7 @@ function Graph(props) {
           xMin,
           xMax,
           tickInterval: xTickInterval,
-          textColor: "white",
+          textColor: "lightgrey",
           renderTick: renderXTick,
         },
       ]}
@@ -369,13 +378,57 @@ function Graph(props) {
       ]}
       yLabels={[
         {
+          drawLabel: true,
+          top:
+            canvas.math.getCanvasY(
+              candlestickGraph.height,
+              candlestickGraph.top,
+              candlestickYMax,
+              candlestickYMin,
+              latest.close
+            ) -
+            Y_LABEL_HEIGHT / 2,
+          left: graph.left + graph.width + 10,
+          height: Y_LABEL_HEIGHT,
+          width: Y_AXIS_WIDTH,
+          renderText: () => renderCandlestickYLabel(latest.close),
+          color: "white",
+          backgroundColor: latest.close >= latest.open ? "green" : "red",
+          lineColor: latest.close >= latest.open ? "lightgreen" : "pink",
+          drawLine: true,
+          lineLeft: graph.left,
+          lineRight: graph.left + graph.width + 10,
+        },
+        {
+          drawLabel: true,
+          top:
+            canvas.math.getCanvasY(
+              volumeGraph.height,
+              volumeGraph.top,
+              volumeYMax,
+              volumeYMin,
+              latest.volume
+            ) -
+            Y_LABEL_HEIGHT / 2,
+          left: graph.left + graph.width + 10,
+          height: Y_LABEL_HEIGHT,
+          width: Y_AXIS_WIDTH,
+          renderText: () => renderVolumeYLabel(latest.volume),
+          color: "white",
+          backgroundColor: latest.close >= latest.open ? "green" : "red",
+          lineColor: latest.close >= latest.open ? "lightgreen" : "pink",
+          drawLine: true,
+          lineLeft: graph.left,
+          lineRight: graph.left + graph.width + 10,
+        },
+        {
           drawLabel: shouldDrawYLabel(mouse, candlestickGraph, volumeGraph),
           top: mouse.y - Y_LABEL_HEIGHT / 2,
           left: graph.left + graph.width + 10,
           height: Y_LABEL_HEIGHT,
           width: Y_AXIS_WIDTH,
           renderText: () =>
-            renderYLabel(
+            renderYLabelAtMouse(
               mouse,
               candlestickGraph,
               candlestickYMin,
