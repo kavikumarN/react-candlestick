@@ -10,6 +10,6 @@ flatc --js packet.fbs
 ```
 
 ```shell
-env $(cat .env) node zmq/pub.js
-env $(cat .env) node zmq/sub.js
+env $(cat .env) node src/pub.js
+env $(cat .env) node src/sub.js
 ```
