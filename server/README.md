@@ -10,6 +10,9 @@ flatc --js packet.fbs
 ```
 
 ```shell
+# test
+npm test
+
 env $(cat .env) node src/pub.js
 env $(cat .env) node src/sub.js
 ```

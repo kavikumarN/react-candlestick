@@ -1,6 +1,6 @@
-const flatbuffers = require('flatbuffers').flatbuffers
-const IbPacket = require('./packet_generated').IbPacket
-const { buildPacket } = require('./generate-random-packet')
+const flatbuffers = require("flatbuffers").flatbuffers
+const IbPacket = require("./packet_generated").IbPacket
+const { buildPacket } = require("./gen-rand-packet")
 
 test("packet", () => {
   const args = {
@@ -15,7 +15,7 @@ test("packet", () => {
       volume: 1000,
       wap: 100,
       count: 10,
-    }
+    },
   }
 
   const buf = buildPacket(args)
