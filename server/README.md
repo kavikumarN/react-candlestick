@@ -1,4 +1,5 @@
 ### Development
+
 ```shell
 npm start
 
@@ -6,4 +7,9 @@ npm start
 
 # compile flatbuffer
 flatc --js packet.fbs
+```
+
+```shell
+env $(cat .env) node zmq/pub.js
+env $(cat .env) node zmq/sub.js
 ```
