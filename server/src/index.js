@@ -21,6 +21,8 @@ async function main() {
     subscribe(message => socket.send(message))
   })
 
+  subscribe(msg => console.log("msg", msg))
+
   // ping each client
   setInterval(() => {
     wss.clients.forEach(socket => {

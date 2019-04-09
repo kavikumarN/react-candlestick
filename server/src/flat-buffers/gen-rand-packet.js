@@ -59,7 +59,7 @@ function buildPacket(args = {}) {
 
   builder.finish(packet)
 
-  return builder.dataBuffer()
+  return builder.asUint8Array()
 }
 
 function random(min, max) {

@@ -1,5 +1,7 @@
 const zmq = require("zeromq")
 const sock = zmq.socket("sub")
+const flatbuffers = require("flatbuffers").flatbuffers
+const { toJSON } = require("./flat-buffers/ib-packet")
 
 const TOPIC = ""
 
@@ -10,7 +12,13 @@ function subscribe(callback) {
 
   sock.on("message", (topic, message) => {
     // console.log("topic:", topic.toString(), "message:", message.toString())
-    callback(message)
+
+    // TODO fix cannot parse message to JSON
+    const data = new Uint8Array(message)
+    console.log(toJSON(data))
+
+    // callback(JSON.stringify(toJSON(message)))
+    callback("foo")
   })
 }
 
