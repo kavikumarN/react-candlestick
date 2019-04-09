@@ -1,6 +1,6 @@
 const zmq = require("zeromq")
 const sock = zmq.socket("pub")
-const { generateRandomPacket } = require("./flat-buffer/gen-rand-packet")
+const { generateRandomPacket } = require("./flat-buffers/gen-rand-packet")
 
 sock.bindSync(process.env.ZMQ_PUB_URL)
 console.log(`Publisher bound to ${process.env.ZMQ_PUB_URL}`)
