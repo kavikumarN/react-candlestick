@@ -520,7 +520,6 @@ function Graph(props) {
           left: candlestickGraph.left + 100,
         },
         {
-          text: "123.2345",
           text: renderFramePrice(nearest.high),
           color: "white",
           top: candlestickGraph.top + 30,
@@ -533,7 +532,6 @@ function Graph(props) {
           left: candlestickGraph.left + 200,
         },
         {
-          text: "123.2345",
           text: renderFramePrice(nearest.low),
           color: "white",
           top: candlestickGraph.top + 30,
