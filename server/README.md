@@ -13,6 +13,6 @@ flatc --js packet.fbs
 # test
 npm test
 
-env $(cat .env) node src/pub.js
-env $(cat .env) node src/sub.js
+env $(cat .env) node src/mock-pub.js
+env $(cat .env) node src/index.js
 ```

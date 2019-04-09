@@ -10,4 +10,4 @@ const TOPIC = ""
 setInterval(() => {
   console.log("sending a message")
   sock.send([TOPIC, generateRandomPacket()])
-}, 500)
+}, 1000)

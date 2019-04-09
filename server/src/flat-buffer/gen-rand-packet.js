@@ -1,6 +1,6 @@
-const assert = require('assert')
-const flatbuffers = require('flatbuffers').flatbuffers
-const IbPacket = require('./packet_generated').IbPacket
+const assert = require("assert")
+const flatbuffers = require("flatbuffers").flatbuffers
+const IbPacket = require("./packet_generated").IbPacket
 
 // Tick {
 //   symb: string;
@@ -15,17 +15,7 @@ const IbPacket = require('./packet_generated').IbPacket
 // }
 
 function buildPayload(builder, args) {
-  let {
-    symb,
-    datetime,
-    open,
-    high,
-    low,
-    close,
-    volume,
-    wap,
-    count
-  } = args
+  let { symb, datetime, open, high, low, close, volume, wap, count } = args
 
   symb = builder.createString(symb)
   datetime = builder.createString(datetime)
@@ -53,10 +43,7 @@ function buildPayload(builder, args) {
 //
 
 function buildPacket(args = {}) {
-  let {
-    time,
-    payload,
-  } = args
+  let { time, payload } = args
 
   const builder = new flatbuffers.Builder(0)
 
@@ -66,7 +53,7 @@ function buildPacket(args = {}) {
   IbPacket.Packet.startPacket(builder)
   IbPacket.Packet.addType(builder, IbPacket.Type.Tick)
   IbPacket.Packet.addTime(builder, time)
-  IbPacket.Packet.addPayloadType(builder, IbPacket.Data.Tick);
+  IbPacket.Packet.addPayloadType(builder, IbPacket.Data.Tick)
   IbPacket.Packet.addPayload(builder, payload)
   const packet = IbPacket.Packet.endPacket(builder)
 
@@ -83,16 +70,7 @@ function randomInt(min, max) {
   return Math.floor(random(min, max))
 }
 
-const SYMBOLS = [
-  "AAA",
-  "BBB",
-  "CCC",
-  "DDD",
-  "EEE",
-  "FFF",
-  "GGG",
-  "HHH",
-]
+const SYMBOLS = ["AAA", "BBB", "CCC", "DDD", "EEE", "FFF", "GGG", "HHH"]
 
 function randomSymbol() {
   return SYMBOLS[randomInt(0, SYMBOLS.length - 1)]
@@ -118,7 +96,7 @@ function generateRandomPacket() {
       volume: randomInt(100, 1000),
       wap: randomInt(0, 100),
       count: randomInt(0, 100),
-    }
+    },
   }
 
   return buildPacket(args)

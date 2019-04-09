@@ -5,6 +5,7 @@ const WebSocket = require("ws")
 const app = express()
 const server = http.createServer(app)
 const wss = new WebSocket.Server({ server })
+const { subscribe } = require("./sub")
 
 async function main() {
   wss.on("connection", socket => {
@@ -16,6 +17,8 @@ async function main() {
     })
 
     socket.send("Hi there, I am a WebSocket server")
+
+    subscribe(message => socket.send(message))
   })
 
   // ping each client
